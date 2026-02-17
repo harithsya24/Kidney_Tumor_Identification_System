@@ -1,0 +1,47 @@
+# ===============================
+# Python
+# ===============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+
+
+# ===============================
+# Virtual Environments
+# ===============================
+venv/
+env/
+.venv/
+.kidney_env/
+.python-version
+
+
+# ===============================
+# OS Files (macOS)
+# ===============================
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ===============================
+# IDE / Editor
+# ===============================
+.vscode/
+.idea/
+*.swp
+
+# ===============================
+# ML / DL Artifacts
+# ===============================
+artifacts/
+# models/
+# checkpoints/
+# weights/
+# runs/
+# mlruns/
+
