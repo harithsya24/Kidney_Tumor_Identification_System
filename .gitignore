@@ -38,7 +38,7 @@ env/
 # ===============================
 # ML / DL Artifacts
 # ===============================
-artifacts/
+artifacts/*
 # models/
 # checkpoints/
 # weights/
