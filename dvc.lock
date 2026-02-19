@@ -1,0 +1,115 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/KidneyTumorSegmentation/pipeline/stage_01_data_ingestion.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 50733845dbdef6dbb19e53f13c9a0377
+      size: 565
+    - path: src/KidneyTumorSegmentation/pipeline/stage_01_data_ingestion.py
+      hash: md5
+      md5: 73b5f7e42e7ee0e622e5cf252bb9eb44
+      size: 928
+    outs:
+    - path: artifacts/data_ingestion/artifacts
+      hash: md5
+      md5: d13e2bc6f34fb51aee873045122b977f.dir
+      size: 961122129
+      nfiles: 7361
+  prepare_base_model:
+    cmd: python 
+      src/KidneyTumorSegmentation/pipeline/stage_02_prepare_base_model.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 50733845dbdef6dbb19e53f13c9a0377
+      size: 565
+    - path: src/KidneyTumorSegmentation/pipeline/stage_02_prepare_base_model.py
+      hash: md5
+      md5: 8d1addaf16efc1fb2b8f3a465e1c1437
+      size: 967
+    params:
+      params.yaml:
+        CLASSES: 2
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+        INCLUDE_TOP: false
+        LEARNING_RATE: 0.01
+        WEIGHTS: imagenet
+    outs:
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: 0fefa56d52a7256ce2b53891052a1cfb.dir
+      size: 118073512
+      nfiles: 2
+  training:
+    cmd: python src/KidneyTumorSegmentation/pipeline/stage_03_model_training.py
+    deps:
+    - path: artifacts/data_ingestion/artifacts
+      hash: md5
+      md5: d13e2bc6f34fb51aee873045122b977f.dir
+      size: 961122129
+      nfiles: 7361
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: 0fefa56d52a7256ce2b53891052a1cfb.dir
+      size: 118073512
+      nfiles: 2
+    - path: config/config.yaml
+      hash: md5
+      md5: 50733845dbdef6dbb19e53f13c9a0377
+      size: 565
+    - path: src/KidneyTumorSegmentation/pipeline/stage_03_model_training.py
+      hash: md5
+      md5: 76af24c7901e2df3874fcc5a1fd0ae16
+      size: 905
+    params:
+      params.yaml:
+        AUGMENTATION: false
+        BATCH_SIZE: 16
+        EPOCHS: 1
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+    outs:
+    - path: artifacts/training/model.h5
+      hash: md5
+      md5: 734dcf989b75dc1ed7f7e0205a174a8e
+      size: 59551240
+  evaluation:
+    cmd: python 
+      src/KidneyTumorSegmentation/pipeline/stage_04_model_evaluation.py
+    deps:
+    - path: artifacts/data_ingestion/artifacts
+      hash: md5
+      md5: d13e2bc6f34fb51aee873045122b977f.dir
+      size: 961122129
+      nfiles: 7361
+    - path: artifacts/training/model.h5
+      hash: md5
+      md5: 734dcf989b75dc1ed7f7e0205a174a8e
+      size: 59551240
+    - path: config/config.yaml
+      hash: md5
+      md5: 50733845dbdef6dbb19e53f13c9a0377
+      size: 565
+    - path: src/KidneyTumorSegmentation/pipeline/stage_04_model_evaluation.py
+      hash: md5
+      md5: fcd68b58b8fe67c8f3c5fe8233c65638
+      size: 881
+    params:
+      params.yaml:
+        BATCH_SIZE: 16
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+    outs:
+    - path: scores.json
+      hash: md5
+      md5: 12da6dce762a650f75f78a400165dd21
+      size: 70

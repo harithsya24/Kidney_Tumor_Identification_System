@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/amruthakanakatteravishankar/Desktop/End-to-End_Projects/Kidney_Tumor_Identification_System/mlruns/0/4a291c33cd9146a1987ed881498db251/artifacts
+end_time: 1771468229875
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 4a291c33cd9146a1987ed881498db251
+run_name: luminous-fish-46
+run_uuid: 4a291c33cd9146a1987ed881498db251
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1771468223178
+status: 3
+tags: []
+user_id: amruthakanakatteravishankar

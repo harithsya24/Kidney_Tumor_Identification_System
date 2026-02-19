@@ -2,6 +2,8 @@ from src.KidneyTumorSegmentation.constants import *
 from src.KidneyTumorSegmentation.utils.common import read_yaml, create_directories
 from src.KidneyTumorSegmentation.entity.config_entity import DataIngestionConfig
 from src.KidneyTumorSegmentation.entity.config_entity import PrepareBaseModelConfig
+from src.KidneyTumorSegmentation.entity.config_entity import TrainingConfig, EvaluationConfig
+import os
 
 class ConfigurationManager:
     def __init__(self, config_filepath = CONFIG_FILE_PATH, params_filepath = PARAMS_FILE_PATH):
@@ -37,3 +39,40 @@ class ConfigurationManager:
             params_classes = self.params.CLASSES
         )
         return prepare_base_model_config
+    
+    
+    def get_training_config(self) -> TrainingConfig:
+        training = self.config.training
+        prepare_base_model = self.config.prepare_base_model
+        params = self.params
+
+        training_data = os.path.join(
+            self.config.data_ingestion.unzip_dir,
+            "artifacts"
+        )
+
+        create_directories([Path(training.root_dir)])
+
+        training_config = TrainingConfig(
+            root_dir=Path(training.root_dir),
+            training_data=Path(training_data), 
+            trained_model_path=Path(training.trained_model_path),  
+            updated_base_model_path=Path(prepare_base_model.updated_base_model_path),
+            params_epochs=params.EPOCHS,
+            params_batch_size=params.BATCH_SIZE,
+            params_is_augmentation=params.AUGMENTATION,
+            params_image_size=params.IMAGE_SIZE
+        )
+
+        return training_config
+    
+    def get_data_evaluation_config(self) -> EvaluationConfig:
+        eval_config = EvaluationConfig(
+            path_of_model="artifacts/training/model.h5",
+            training_data="artifacts/data_ingestion/artifacts",
+            mlflow_uri="https://dagshub.com/harithsya24/Kidney_Tumor_Identification_System.mlflow",
+            all_params=self.params,
+            params_image_size=self.params.IMAGE_SIZE,
+            params_batch_size=self.params.BATCH_SIZE,
+        )
+        return eval_config

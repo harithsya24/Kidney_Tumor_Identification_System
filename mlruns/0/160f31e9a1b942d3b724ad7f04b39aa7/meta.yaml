@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/amruthakanakatteravishankar/Desktop/End-to-End_Projects/Kidney_Tumor_Identification_System/mlruns/0/160f31e9a1b942d3b724ad7f04b39aa7/artifacts
+end_time: 1771467838740
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 160f31e9a1b942d3b724ad7f04b39aa7
+run_name: respected-cod-665
+run_uuid: 160f31e9a1b942d3b724ad7f04b39aa7
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1771467838729
+status: 4
+tags: []
+user_id: amruthakanakatteravishankar
