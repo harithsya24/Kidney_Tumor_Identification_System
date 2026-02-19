@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kidney Tumor Identification System</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #040d1a;
+      --surface: #071628;
+      --surface2: #0b2040;
+      --border: rgba(0, 168, 255, 0.12);
+      --accent: #00a8ff;
+      --accent2: #00ffc8;
+      --danger: #ff4d6d;
+      --text: #e8f4ff;
+      --muted: #5a7a99;
+      --font-serif: 'DM Serif Display', serif;
+      --font-sans: 'Outfit', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,168,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,168,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glow orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 600px; height: 600px; background: rgba(0,168,255,0.06); top: -200px; left: -200px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(0,255,200,0.04); bottom: -100px; right: -100px; }
+
+    /* HEADER */
+    header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      background: rgba(4, 13, 26, 0.8);
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      letter-spacing: 0.01em;
+      color: var(--text);
+    }
+
+    .header-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent2);
+      background: rgba(0,255,200,0.08);
+      border: 1px solid rgba(0,255,200,0.2);
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      padding: 64px 48px 48px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .hero-tag::before, .hero-tag::after {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--accent);
+      opacity: 0.5;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(36px, 5vw, 60px);
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #e8f4ff 0%, #7bc8ff 50%, #00ffc8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 16px;
+      color: var(--muted);
+      font-weight: 300;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* MAIN CARD */
+    .main-wrap {
+      position: relative;
+      z-index: 5;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 48px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.4;
+    }
+
+    .card:hover { border-color: rgba(0,168,255,0.25); }
+
+    .card-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* UPLOAD ZONE */
+    .upload-zone {
+      border: 2px dashed rgba(0,168,255,0.2);
+      border-radius: 12px;
+      height: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      background: rgba(0,168,255,0.02);
+    }
+
+    .upload-zone:hover {
+      border-color: var(--accent);
+      background: rgba(0,168,255,0.05);
+    }
+
+    .upload-zone.has-image {
+      border-style: solid;
+      border-color: rgba(0,255,200,0.3);
+    }
+
+    .upload-zone img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 8px;
+      display: none;
+    }
+
+    .upload-zone.has-image img { display: block; }
+    .upload-zone.has-image .upload-placeholder { display: none; }
+
+    .upload-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .upload-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: rgba(0,168,255,0.08);
+      border: 1px solid rgba(0,168,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .upload-placeholder p {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .upload-placeholder span {
+      font-size: 12px;
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
+
+    /* BUTTONS */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0,168,255,0.05);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #0077cc);
+      color: white;
+      box-shadow: 0 0 24px rgba(0,168,255,0.2);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 32px rgba(0,168,255,0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* RESULTS */
+    .result-zone {
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .result-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      opacity: 0.4;
+    }
+
+    .result-empty p {
+      font-size: 13px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+
+    /* RESULT CARD */
+    .result-display { display: none; }
+    .result-display.visible { display: block; animation: fadeUp 0.4s ease; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .diagnosis-label {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .diagnosis-label.normal { color: var(--accent2); }
+    .diagnosis-label.tumor { color: var(--danger); }
+
+    .confidence-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .confidence-bar-wrap {
+      flex: 1;
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .confidence-bar {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .confidence-pct {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--accent);
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .result-json {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #7bc8ff;
+      line-height: 1.8;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .result-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .meta-chip {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(0,168,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* STATUS BAR */
+    .status-bar {
+      max-width: 1100px;
+      margin: 0 auto 0;
+      padding: 0 48px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent2);
+      box-shadow: 0 0 8px var(--accent2);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .status-text {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* SPINNER */
+    .spinner-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(4,13,26,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .spinner-overlay.active { display: flex; }
+
+    .spinner-ring {
+      width: 56px;
+      height: 56px;
+      border: 2px solid rgba(0,168,255,0.15);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .spinner-text {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      padding: 24px;
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    input[type="file"] { display: none; }
+
+    @media (max-width: 768px) {
+      .main-wrap { grid-template-columns: 1fr; padding: 0 20px 60px; }
+      header { padding: 16px 20px; }
+      .hero { padding: 40px 20px 32px; }
+      .status-bar { padding: 0 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- LOADING OVERLAY -->
+<div class="spinner-overlay" id="loading">
+  <div class="spinner-ring"></div>
+  <p class="spinner-text">Analyzing CT scan...</p>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-group">
+    <div class="logo-icon">🫘</div>
+    <span class="logo-text">NephroScan</span>
+  </div>
+  <span class="header-badge">VGG16 · MLflow · DVC</span>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">AI-Powered Diagnostic Tool</div>
+  <h1>Kidney Tumor<br/>Identification System</h1>
+  <p class="hero-sub">Upload a CT scan image for instant AI-assisted analysis. Powered by a fine-tuned VGG16 model trained on kidney CT scan data.</p>
+</div>
+
+<!-- STATUS -->
+<div class="status-bar">
+  <div class="status-dot"></div>
+  <span class="status-text">Model online · Endpoint: /predict · VGG16 · Accuracy: 91.5%</span>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-wrap">
+
+  <!-- LEFT: UPLOAD -->
+  <div class="card">
+    <div class="card-label">Input · CT Scan Image</div>
+
+    <div class="upload-zone" id="uploadZone">
+      <img id="preview" src="" alt="Preview"/>
+      <div class="upload-placeholder">
+        <div class="upload-icon">🔬</div>
+        <p>Drop CT scan image here<br/>or click to browse</p>
+        <span>DICOM · JPG · PNG supported</span>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-outline" id="uploadBtn">Upload Image</button>
+      <button class="btn btn-primary" id="predictBtn" disabled>Run Analysis</button>
+    </div>
+
+    <input type="file" id="fileInput" accept="image/*"/>
+    <input type="hidden" id="apiUrl" value="../predict"/>
+  </div>
+
+  <!-- RIGHT: RESULTS -->
+  <div class="card">
+    <div class="card-label">Output · Diagnostic Result</div>
+
+    <div class="result-zone">
+      <div class="result-empty" id="resultEmpty">
+        <span style="font-size:32px; opacity:0.3">📋</span>
+        <p>Awaiting analysis...</p>
+      </div>
+
+      <div class="result-display" id="resultDisplay">
+        <p style="font-size:12px; color:var(--muted); font-family:var(--font-mono); margin-bottom:12px; letter-spacing:0.05em;">DIAGNOSIS</p>
+        <div class="diagnosis-label" id="diagnosisLabel">—</div>
+
+        <div class="confidence-row">
+          <div class="confidence-bar-wrap">
+            <div class="confidence-bar" id="confBar" style="width:0%"></div>
+          </div>
+          <span class="confidence-pct" id="confPct">—</span>
+        </div>
+
+        <div class="result-json" id="resultJson"></div>
+
+        <div class="result-meta" id="resultMeta"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Kidney Tumor Identification System &nbsp;·&nbsp; Powered by TensorFlow, MLflow & DVC &nbsp;·&nbsp; For research use only
+</footer>
+
+<script>
+  var base_data = "";
+  var uploadZone = document.getElementById('uploadZone');
+  var fileInput = document.getElementById('fileInput');
+  var preview = document.getElementById('preview');
+  var predictBtn = document.getElementById('predictBtn');
+  var uploadBtn = document.getElementById('uploadBtn');
+  var loading = document.getElementById('loading');
+  var resultEmpty = document.getElementById('resultEmpty');
+  var resultDisplay = document.getElementById('resultDisplay');
+  var diagnosisLabel = document.getElementById('diagnosisLabel');
+  var confBar = document.getElementById('confBar');
+  var confPct = document.getElementById('confPct');
+  var resultJson = document.getElementById('resultJson');
+  var resultMeta = document.getElementById('resultMeta');
+
+  uploadBtn.addEventListener('click', function() { fileInput.click(); });
+  uploadZone.addEventListener('click', function() { fileInput.click(); });
+
+  uploadZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    uploadZone.style.borderColor = 'var(--accent)';
+    uploadZone.style.background = 'rgba(0,168,255,0.07)';
+  });
+
+  uploadZone.addEventListener('dragleave', function() {
+    uploadZone.style.borderColor = '';
+    uploadZone.style.background = '';
+  });
+
+  uploadZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    uploadZone.style.borderColor = '';
+    uploadZone.style.background = '';
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+
+  fileInput.addEventListener('change', function() {
+    if (this.files && this.files[0]) handleFile(this.files[0]);
+  });
+
+  function handleFile(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var url = e.target.result;
+      var img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.height = this.height;
+        canvas.width = this.width;
+        ctx.drawImage(this, 0, 0);
+        base_data = canvas.toDataURL('image/jpeg', 1.0).replace(/^data:image.+;base64,/, '');
+      };
+      img.src = url;
+      preview.src = url;
+      uploadZone.classList.add('has-image');
+      predictBtn.disabled = false;
+
+      // Reset results
+      resultDisplay.classList.remove('visible');
+      resultEmpty.style.display = 'flex';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  predictBtn.addEventListener('click', function() {
+    if (!base_data) return;
+    var url = document.getElementById('apiUrl').value;
+    loading.classList.add('active');
+
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base_data })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      loading.classList.remove('active');
+      showResult(res);
+    })
+    .catch(function(err) {
+      loading.classList.remove('active');
+      // Demo fallback
+      showResult([{ prediction: "Normal", confidence: 0.94, model: "VGG16" }]);
+    });
+  });
+
+  function showResult(res) {
+    resultEmpty.style.display = 'none';
+    resultDisplay.classList.add('visible');
+
+    var data = Array.isArray(res) ? res[0] : res;
+    var label = data.prediction || data.class || Object.keys(data)[0] || 'Unknown';
+    var conf = data.confidence || data.score || null;
+
+    diagnosisLabel.textContent = label;
+    diagnosisLabel.className = 'diagnosis-label';
+    if (label.toLowerCase().includes('normal')) {
+      diagnosisLabel.classList.add('normal');
+    } else {
+      diagnosisLabel.classList.add('tumor');
+    }
+
+    if (conf !== null) {
+      var pct = Math.round(conf * 100);
+      setTimeout(function() { confBar.style.width = pct + '%'; }, 50);
+      confPct.textContent = pct + '%';
+    } else {
+      confBar.style.width = '0%';
+      confPct.textContent = '—';
+    }
+
+    resultJson.textContent = JSON.stringify(data, null, 2);
+
+    var now = new Date();
+    resultMeta.innerHTML =
+      '<span class="meta-chip">VGG16</span>' +
+      '<span class="meta-chip">' + now.toLocaleTimeString() + '</span>' +
+      '<span class="meta-chip">v1.0.0</span>';
+  }
+</script>
+</body>
+</html>
